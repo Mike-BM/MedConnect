@@ -6,6 +6,7 @@ import Appointments from './pages/Appointments';
 import SymptomChecker from './pages/SymptomChecker';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import HospitalManagement from './pages/HospitalManagement';
 import DoctorManagement from './pages/DoctorManagement';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -41,6 +42,7 @@ function AppRoutes() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/symptom-checker" element={<SymptomChecker />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/hospitals" element={<HospitalManagement />} />
               <Route path="/doctors" element={<DoctorManagement />} />
               <Route path="*" element={<Navigate to="/" replace />} />

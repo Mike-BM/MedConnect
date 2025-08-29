@@ -6,6 +6,7 @@ import {
   Stethoscope, 
   Building2, 
   Users, 
+  User,
   LogOut,
   Activity
 } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function Navbar() {
     { name: 'Dashboard', href: '/', icon: Activity },
     { name: 'Appointments', href: '/appointments', icon: Calendar },
     { name: 'Symptom Checker', href: '/symptom-checker', icon: Stethoscope },
+    { name: 'Profile', href: '/profile', icon: User },
     { name: 'Hospitals', href: '/hospitals', icon: Building2 },
     { name: 'Doctors', href: '/doctors', icon: Users },
   ];
