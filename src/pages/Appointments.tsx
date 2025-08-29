@@ -3,7 +3,6 @@ import { Calendar, Clock, Plus, Edit, Trash2, User, Building2 } from 'lucide-rea
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import AppointmentForm from '../components/AppointmentForm';
-import AppointmentStats from '../components/AppointmentStats';
 
 export default function Appointments() {
   const { user } = useAuth();
@@ -11,13 +10,6 @@ export default function Appointments() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<any>(null);
-  const [appointmentStats, setAppointmentStats] = useState({
-    total: 0,
-    scheduled: 0,
-    confirmed: 0,
-    completed: 0,
-    cancelled: 0
-  });
 
   useEffect(() => {
     fetchAppointments();
@@ -40,16 +32,6 @@ export default function Appointments() {
 
       if (error) throw error;
       setAppointments(data || []);
-
-      // Calculate stats
-      const stats = {
-        total: data?.length || 0,
-        scheduled: data?.filter(apt => apt.status === 'scheduled').length || 0,
-        confirmed: data?.filter(apt => apt.status === 'confirmed').length || 0,
-        completed: data?.filter(apt => apt.status === 'completed').length || 0,
-        cancelled: data?.filter(apt => apt.status === 'cancelled').length || 0
-      };
-      setAppointmentStats(stats);
     } catch (error) {
       console.error('Error fetching appointments:', error);
     } finally {
@@ -130,10 +112,6 @@ export default function Appointments() {
             <span>Book Appointment</span>
           </button>
         </div>
-
-       <div className="mb-8">
-         <AppointmentStats stats={appointmentStats} />
-       </div>
 
         {appointments.length === 0 ? (
           <div className="text-center py-12">

@@ -12,9 +12,6 @@ import {
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import AppointmentStats from '../components/AppointmentStats';
-import RecentActivity from '../components/RecentActivity';
-import HealthTips from '../components/HealthTips';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -25,7 +22,6 @@ export default function Dashboard() {
     totalDoctors: 0
   });
   const [recentAppointments, setRecentAppointments] = useState<any[]>([]);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -79,16 +75,6 @@ export default function Dashboard() {
       });
 
       setRecentAppointments(appointments || []);
-
-      // Generate recent activity from appointments
-      const activities = appointments?.slice(0, 5).map((apt: any) => ({
-        id: apt.id,
-        type: 'appointment_created',
-        description: `Appointment scheduled with Dr. ${apt.doctors?.name} at ${apt.doctors?.hospitals?.name}`,
-        timestamp: apt.created_at
-      })) || [];
-
-      setRecentActivity(activities);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -148,20 +134,50 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="mb-8">
-          <AppointmentStats 
-            stats={{
-              total: stats.totalAppointments,
-              scheduled: stats.upcomingAppointments,
-              confirmed: 0,
-              completed: 0,
-              cancelled: 0
-            }}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <Calendar className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Appointments</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalAppointments}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <Clock className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Upcoming</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.upcomingAppointments}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <Building2 className="h-8 w-8 text-purple-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Hospitals</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalHospitals}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <Users className="h-8 w-8 text-orange-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Doctors</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalDoctors}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -183,30 +199,47 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <RecentActivity activities={recentActivity} />
-
+          {/* Recent Appointments */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">System Stats</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm text-gray-600">Hospitals</span>
-                </div>
-                <span className="text-lg font-semibold text-gray-900">{stats.totalHospitals}</span>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Appointments</h2>
+            {recentAppointments.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No appointments yet</p>
+            ) : (
+              <div className="space-y-3">
+                {recentAppointments.slice(0, 3).map((appointment) => (
+                  <div key={appointment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      {getStatusIcon(appointment.status)}
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          Dr. {appointment.doctors?.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {appointment.date} at {appointment.time}
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
+                      {appointment.status}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm text-gray-600">Doctors</span>
-                </div>
-                <span className="text-lg font-semibold text-gray-900">{stats.totalDoctors}</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        <HealthTips />
+        {/* Health Tips */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-sm p-6 text-white">
+          <div className="flex items-center mb-4">
+            <Activity className="h-6 w-6 mr-2" />
+            <h2 className="text-lg font-semibold">Today's Health Tip</h2>
+          </div>
+          <p className="text-blue-100">
+            Stay hydrated! Drinking adequate water helps maintain your body temperature, 
+            supports digestion, and keeps your skin healthy. Aim for 8 glasses of water daily.
+          </p>
+        </div>
       </div>
     </div>
   );
