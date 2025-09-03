@@ -15,3 +15,7 @@ const isConfigured = supabaseUrl &&
 if (!isConfigured) {
   console.warn('Supabase environment variables not configured. Please click "Connect to Supabase" to set up your database.');
 }
+
+export const supabase = isConfigured 
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+  : null;
