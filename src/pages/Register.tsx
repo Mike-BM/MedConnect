@@ -20,8 +20,12 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await signUp(email, password);
-      setSuccess('Account created successfully! Please sign in.');
+      const data = await signUp(email, password);
+      if (data.user && !data.session) {
+        setSuccess('Account created successfully! Please check your email to confirm your account before signing in.');
+      } else {
+        setSuccess('Account created successfully! Please sign in.');
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {

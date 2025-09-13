@@ -55,11 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) {
       throw new Error('Supabase is not configured. Please set up your environment variables.');
     }
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
     if (error) throw error;
+    return data;
   };
 
   const signOut = async () => {
